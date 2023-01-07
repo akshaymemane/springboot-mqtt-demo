@@ -1,0 +1,76 @@
+{
+	"info": {
+		"_postman_id": "463e988b-7568-4a5c-87f5-1f2884d92ded",
+		"name": "MQTT Demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "publish",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"message\": \"new test msg\",\n\t\"topic\":\"test\",\n\t\"retained\":true,\n\t\"qos\":0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9001/api/mqtt/publish",
+					"protocol": "http",
+					"host": [
+						"107",
+						"155",
+						"65",
+						"25"
+					],
+					"port": "9001",
+					"path": [
+						"api",
+						"mqtt",
+						"publish"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "subscribe",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/api/mqtt/subscribe?topic=test&wait_millis=5000",
+					"protocol": "http",
+					"host": [
+						"107",
+						"155",
+						"65",
+						"25"
+					],
+					"port": "9001",
+					"path": [
+						"api",
+						"mqtt",
+						"subscribe"
+					],
+					"query": [
+						{
+							"key": "topic",
+							"value": "test"
+						},
+						{
+							"key": "wait_millis",
+							"value": "5000"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
