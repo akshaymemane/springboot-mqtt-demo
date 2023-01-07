@@ -7,7 +7,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 
 public class Mqtt {
 
-    private static final String MQTT_PUBLISHER_ID = "akshay-mqtt";
+    private static final String MQTT_PUBLISHER_ID = "root-mqtt";
     private static final String MQTT_SERVER_ADDRES= "tcp://127.0.0.1:1883";
     private static IMqttClient instance;
 
