@@ -1,26 +1,30 @@
 package com.gulteking.mqttbackendserver.controller;
 
 import com.gulteking.mqttbackendserver.config.Mqtt;
+import com.gulteking.mqttbackendserver.entity.MqttData;
 import com.gulteking.mqttbackendserver.exceptions.ExceptionMessages;
 import com.gulteking.mqttbackendserver.exceptions.MqttException;
 import com.gulteking.mqttbackendserver.model.MqttPublishModel;
 import com.gulteking.mqttbackendserver.model.MqttSubscribeModel;
+import com.gulteking.mqttbackendserver.service.MqttDataService;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping(value = "/api/mqtt")
+@RequestMapping(value = "/mqtt")
 public class MqttController {
+    @Autowired
+    MqttDataService mqttDataService;
 
     @PostMapping("publish")
-    public void publishMessage(@RequestBody @Valid MqttPublishModel messagePublishModel,
+    public void publishMessage(@RequestBody  MqttPublishModel messagePublishModel,
                                BindingResult bindingResult) throws org.eclipse.paho.client.mqttv3.MqttException {
         if (bindingResult.hasErrors()) {
             throw new MqttException(ExceptionMessages.SOME_PARAMETERS_INVALID);
@@ -46,6 +50,16 @@ public class MqttController {
             mqttSubscribeModel.setQos(mqttMessage.getQos());
             messages.add(mqttSubscribeModel);
             countDownLatch.countDown();
+            try {
+                MqttData mqttData = MqttData.builder()
+                        .mqttDataTopic(topic)
+                        .mqttDataSyncedData(mqttSubscribeModel.toString())
+                        .build();
+                mqttDataService.save(mqttData);
+            }catch (Exception exception){
+                exception.printStackTrace();
+                throw new MqttException(ExceptionMessages.SOME_PARAMETERS_INVALID);
+            }
         });
 
         countDownLatch.await(waitMillis, TimeUnit.MILLISECONDS);

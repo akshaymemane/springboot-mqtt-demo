@@ -1,16 +1,13 @@
 package com.gulteking.mqttbackendserver.model;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+
+import com.sun.istack.NotNull;
 
 public class MqttPublishModel {
 
-    @NotNull
-    @Size(min = 1,max = 255)
     private String topic;
 
     @NotNull
-    @Size(min = 1,max = 255)
     private String message;
 
     @NotNull
