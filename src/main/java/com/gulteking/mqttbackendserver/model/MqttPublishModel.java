@@ -1,7 +1,7 @@
 package com.gulteking.mqttbackendserver.model;
 
 
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 
 public class MqttPublishModel {
 
