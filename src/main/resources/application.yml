@@ -13,7 +13,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/mqtt_service?useSSL=false
     username: root
-    password: root@123
+    password: CmileTally2db
     driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
