@@ -29,4 +29,13 @@ public class MqttSubscribeModel {
     public void setId(Integer id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "MqttSubscribeModel{" +
+                "message='" + message + '\'' +
+                ", qos=" + qos +
+                ", id=" + id +
+                '}';
+    }
 }
