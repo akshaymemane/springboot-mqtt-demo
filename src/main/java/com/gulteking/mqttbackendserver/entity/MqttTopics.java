@@ -14,21 +14,18 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "mqtt_data")
-public class MqttData {
-
+@Table(name = "mqtt_topics")
+public class MqttTopics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "mqtt_data_id")
-    private Long mqttDataId;
+    @Column(name = "mt_id")
+    private Long mtId;
 
-    @Column(name = "mqtt_data_topic")
-    private String mqttDataTopic;
-
-    @Column(name = "mqtt_data_synced_data")
-    private String mqttDataSyncedData;
+    @Column(name = "mt_name")
+    private String mtName;
 
     @CreationTimestamp
-    @Column(name = "mqtt_data_created_date")
-    private Date mqttDataCreatedDate;
+    @Column(name = "mt_created_date")
+    private Date mtCreatedDate;
+
 }

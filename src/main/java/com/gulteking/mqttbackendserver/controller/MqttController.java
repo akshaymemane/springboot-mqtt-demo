@@ -66,6 +66,4 @@ public class MqttController {
 
         return messages;
     }
-
-
 }
