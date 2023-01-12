@@ -1,17 +1,26 @@
 package com.gulteking.mqttbackendserver.serviceimpl;
 
 import com.gulteking.mqttbackendserver.config.MqttConfig;
+import com.gulteking.mqttbackendserver.entity.MqttData;
+import com.gulteking.mqttbackendserver.entity.MqttTopics;
+import com.gulteking.mqttbackendserver.service.MqttDataService;
+import com.gulteking.mqttbackendserver.service.MqttTopicsService;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @Component
 public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
+
+    @Autowired
+    MqttDataService mqttDataService;
 
     private static final String fota_fetch_record = "fota_fetch_record";
     private String brokerUrl = null;
@@ -33,11 +42,9 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
     protected void config(String broker, Integer port, Boolean ssl, Boolean withUserNamePass) {
         logger.info("Inside Parameter Config");
         String protocal = this.TCP;
-
         this.brokerUrl = protocal + this.broker + colon + port;
         this.persistence = new MemoryPersistence();
         this.connectionOptions = new MqttConnectOptions();
-
         try {
             this.mqttClient = new MqttClient(brokerUrl, clientId, persistence);
             this.connectionOptions.setCleanSession(true);
@@ -79,8 +86,16 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
     public void messageArrived(String mqttTopic, MqttMessage mqttMessage) throws Exception {
         String time = new Timestamp(System.currentTimeMillis()).toString();
         System.out.println("***********************************************************************");
-        System.out.println("Message Arrived at Time: " + time + "  Topic: " + mqttTopic + "  Message: "
-                + new String(mqttMessage.getPayload()));
+        String data = new String(mqttMessage.getPayload());
+        if (data != null || data != " "){
+            System.out.println("Message Arrived at Time: " + time + "  Topic: " + mqttTopic + "  Message: "
+                    + new String(mqttMessage.getPayload()));
+            MqttData mqttData = MqttData.builder()
+                    .mqttDataTopic(mqttTopic)
+                    .mqttDataSyncedData(data)
+                    .build();
+            mqttDataService.save(mqttData);
+        }
         System.out.println("***********************************************************************");
     }
 
@@ -91,10 +106,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
 
     public void subscribeMessage(String topic) {
         try {
-            logger.info("Rishabh Kukkar Sub1 " + topic);
             this.mqttClient.subscribe(topic, this.qos);
-            logger.info("Rishabh Kukkar Sub2 " + topic);
-
         } catch (MqttException me) {
             System.out.println("Not able to Read Topic  " + topic);
             // me.printStackTrace();

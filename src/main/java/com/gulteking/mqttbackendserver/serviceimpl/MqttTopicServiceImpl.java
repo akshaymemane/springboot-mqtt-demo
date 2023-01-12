@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class mqttTopicServiceImpl implements MqttTopicsService {
+public class MqttTopicServiceImpl implements MqttTopicsService {
     @Autowired
     MqttTopicsRepository mqttTopicsRepository;
 
@@ -32,7 +32,6 @@ public class mqttTopicServiceImpl implements MqttTopicsService {
         MqttTopics createdTopic = mqttTopicsRepository.save(mqttTopics);
         mqttSubscriber.subscribeMessage(createdTopic.getMtName());
         return createdTopic;
-
     }
 
     @Override

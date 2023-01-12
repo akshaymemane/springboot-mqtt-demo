@@ -18,7 +18,6 @@ public class MqttTopicController {
 
     @PostMapping
     public void publishMessage(@RequestBody MqttTopics messagePublishModel) {
-
         mqttTopicsService.save(messagePublishModel);
     }
 }

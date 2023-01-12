@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @Builder
@@ -21,5 +23,9 @@ public class MqttTopics {
 
     @Column(name = "mt_name")
     private String mtName;
+
+    @CreationTimestamp
+    @Column(name = "mt_created_date")
+    private Date mtCreatedDate;
 
 }

@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @Builder
@@ -25,4 +27,8 @@ public class MqttData {
 
     @Column(name = "mqtt_data_synced_data")
     private String mqttDataSyncedData;
+
+    @CreationTimestamp
+    @Column(name = "mqtt_data_created_date")
+    private Date mqttDataCreatedDate;
 }
