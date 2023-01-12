@@ -113,6 +113,17 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
         }
     }
 
+    public boolean unsubscribeMessage(String topic) {
+        try {
+            this.mqttClient.unsubscribe(topic);
+            return true;
+        } catch (MqttException me) {
+            System.out.println("Not able to Read Topic  " + topic);
+            return false;
+            // me.printStackTrace();
+        }
+    }
+
     public void disconnect() {
         try {
             this.mqttClient.disconnect();
