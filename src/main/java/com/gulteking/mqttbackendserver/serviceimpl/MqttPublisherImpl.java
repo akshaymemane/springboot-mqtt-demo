@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Component
 public class MqttPublisherImpl extends MqttConfig implements MqttCallback {
-    private static final String fota_fetch_record = "root-mqtt";
     private String brokerUrl = null;
     final private String colon = ":";
     final private String clientId = UUID.randomUUID().toString();

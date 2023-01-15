@@ -1,6 +1,5 @@
 package com.gulteking.mqttbackendserver.service;
 
-import com.gulteking.mqttbackendserver.entity.MqttData;
 import com.gulteking.mqttbackendserver.entity.MqttTopics;
 import com.gulteking.mqttbackendserver.model.MqttTopicSubscribe;
 

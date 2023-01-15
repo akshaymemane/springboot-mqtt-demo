@@ -2,9 +2,7 @@ package com.gulteking.mqttbackendserver.serviceimpl;
 
 import com.gulteking.mqttbackendserver.config.MqttConfig;
 import com.gulteking.mqttbackendserver.entity.MqttData;
-import com.gulteking.mqttbackendserver.entity.MqttTopics;
 import com.gulteking.mqttbackendserver.service.MqttDataService;
-import com.gulteking.mqttbackendserver.service.MqttTopicsService;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -13,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -22,7 +19,6 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
     @Autowired
     MqttDataService mqttDataService;
 
-    private static final String fota_fetch_record = "fota_fetch_record";
     private String brokerUrl = null;
     final private String colon = ":";
     final private String clientId = UUID.randomUUID().toString();
@@ -87,7 +83,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
         String time = new Timestamp(System.currentTimeMillis()).toString();
         System.out.println("***********************************************************************");
         String data = new String(mqttMessage.getPayload());
-        if (data != null || data != " "){
+        if (data != null || data != " ") {
             System.out.println("Message Arrived at Time: " + time + "  Topic: " + mqttTopic + "  Message: "
                     + new String(mqttMessage.getPayload()));
             MqttData mqttData = MqttData.builder()
