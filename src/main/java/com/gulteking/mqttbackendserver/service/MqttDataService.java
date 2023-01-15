@@ -13,4 +13,6 @@ public interface MqttDataService {
     MqttData save(MqttData mqttData);
 
     MqttData update(MqttData mqttData);
+
+    MqttData findLastRecord();
 }

@@ -34,4 +34,9 @@ public class MqttDataServiceImpl implements MqttDataService {
     public MqttData update(MqttData mqttData) {
         return mqttDataRepository.save(mqttData);
     }
+
+    @Override
+    public MqttData findLastRecord() {
+        return mqttDataRepository.findTopByOrderByMqttDataIdDesc();
+    }
 }

@@ -22,20 +22,19 @@ public class MqttTopicController {
     @PostMapping
     public ResponseEntity<Object> publishMessage(@RequestBody MqttTopics messagePublishModel) {
         MqttTopics mqttTopic = mqttTopicsService.save(messagePublishModel);
-        if (mqttTopic != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(JsonResponse.builder()
-                    .message("Topic created successfully !!!")
-                    .data(mqttTopic)
-                    .status(HttpStatus.CREATED)
-                    .statusCode(HttpStatus.CREATED.value())
-                    .build());
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(JsonResponse.builder()
-                    .message("Topic creation error !!!")
-                    .status(HttpStatus.BAD_REQUEST)
-                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .build());
-        }
+        if (mqttTopic != null) return ResponseEntity.status(HttpStatus.CREATED)
+                .body(JsonResponse.builder()
+                .message("Topic created successfully !!!")
+                .data(mqttTopic)
+                .status(HttpStatus.CREATED)
+                .statusCode(HttpStatus.CREATED.value())
+                .build());
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(JsonResponse.builder()
+                .message("Topic creation error !!!")
+                .status(HttpStatus.BAD_REQUEST)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .build());
     }
 
     @PostMapping("/toTopic")
