@@ -5,8 +5,8 @@ public abstract class MqttConfig {
     protected final int qos = 1;
     protected Boolean hasSSL = false; /*By default SSL is disabled */
     protected Integer port = 1883; /* Default port */
-    protected final String userName = "your username";
-    protected final String password = "Password";
+    protected final String userName = "";
+    protected final String password = "";
     protected final String TCP = "tcp://";
     protected final String SSL = "ssl://";
 

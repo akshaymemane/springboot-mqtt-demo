@@ -30,8 +30,14 @@ public class MqttTopicServiceImpl implements MqttTopicsService {
 
     @Override
     public Optional<MqttTopics> findById(Long id) {
-        return Optional.empty();
+        return mqttTopicsRepository.findById(id);
     }
+
+    @Override
+    public Optional<MqttTopics> findByTopicName(String topicName) {
+        return mqttTopicsRepository.findByMtName(topicName);
+    }
+
 
     @Override
     public MqttTopics save(MqttTopics mqttTopics) {

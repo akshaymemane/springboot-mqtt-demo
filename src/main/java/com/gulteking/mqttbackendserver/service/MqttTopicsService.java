@@ -11,6 +11,8 @@ public interface MqttTopicsService {
 
     Optional<MqttTopics> findById(Long id);
 
+    Optional<MqttTopics> findByTopicName(String topicName);
+
     MqttTopics save(MqttTopics mqttTopics);
 
     MqttTopics update(MqttTopics mqttTopics);

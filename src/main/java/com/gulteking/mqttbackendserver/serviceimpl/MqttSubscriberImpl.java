@@ -1,8 +1,12 @@
 package com.gulteking.mqttbackendserver.serviceimpl;
 
+import com.google.gson.Gson;
 import com.gulteking.mqttbackendserver.config.MqttConfig;
 import com.gulteking.mqttbackendserver.entity.MqttData;
+import com.gulteking.mqttbackendserver.entity.MqttTopics;
+import com.gulteking.mqttbackendserver.model.MqttResponse;
 import com.gulteking.mqttbackendserver.service.MqttDataService;
+import com.gulteking.mqttbackendserver.service.MqttTopicsService;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -11,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -18,6 +23,9 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
 
     @Autowired
     MqttDataService mqttDataService;
+
+    @Autowired
+    MqttTopicsService mqttTopicsService;
 
     private String brokerUrl = null;
     final private String colon = ":";
@@ -67,7 +75,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
             this.mqttClient.connect(this.connectionOptions);
             this.mqttClient.setCallback(this);
         } catch (MqttException me) {
-            // throw new com.bms.exceptions.MqttException("Not Connected");
+            me.getMessage();
         }
     }
 
@@ -91,6 +99,15 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
                     .mqttDataSyncedData(data)
                     .build();
             mqttDataService.save(mqttData);
+
+            Optional<MqttTopics> topicData = mqttTopicsService.findByTopicName(mqttTopic);
+            if (!topicData.isEmpty()) {
+                MqttResponse mqttResponse = MqttResponse.builder()
+                        .ST("OK").PID("1234")
+                        .build();
+                System.out.println("Rishabh Kukkar " + mqttResponse.toString());
+                publishMessage(topicData.get().getMtPublisherName(), new Gson().toJson(mqttResponse));
+            }
         }
         System.out.println("***********************************************************************");
     }
@@ -106,6 +123,21 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
         } catch (MqttException me) {
             System.out.println("Not able to Read Topic  " + topic);
             // me.printStackTrace();
+        }
+    }
+
+    public void publishMessage(String topic, String message) {
+        try {
+            MqttMessage mqttmessage = new MqttMessage(message.getBytes());
+            mqttmessage.setQos(this.qos);
+            mqttmessage.setRetained(false);
+            this.mqttClient.publish(topic, mqttmessage);
+        } catch (com.gulteking.mqttbackendserver.exceptions.MqttException me) {
+            logger.error("ERROR", me);
+        } catch (MqttPersistenceException e) {
+            throw new RuntimeException(e);
+        } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -13,6 +13,5 @@ public class MqttMessageListener implements Runnable {
         while (true) {
             subscriber.subscribeMessage("root-mqtt");
         }
-
     }
 }

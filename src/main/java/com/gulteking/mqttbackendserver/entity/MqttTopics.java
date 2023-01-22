@@ -24,6 +24,9 @@ public class MqttTopics {
     @Column(name = "mt_name")
     private String mtName;
 
+    @Column(name = "mt_publisher_name")
+    private String mtPublisherName;
+
     @CreationTimestamp
     @Column(name = "mt_created_date")
     private Date mtCreatedDate;
