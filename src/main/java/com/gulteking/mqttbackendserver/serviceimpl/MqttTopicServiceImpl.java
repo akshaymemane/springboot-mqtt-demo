@@ -21,6 +21,9 @@ public class MqttTopicServiceImpl implements MqttTopicsService {
     MqttSubscriberImpl mqttSubscriber;
 
     @Autowired
+    MqttPublisherImpl mqttPublisher;
+
+    @Autowired
     private MqttDataRepository mqttDataRepository;
 
     @Override
@@ -29,11 +32,12 @@ public class MqttTopicServiceImpl implements MqttTopicsService {
     }
 
     @Override
-    public Boolean findAllByIsConnected(Boolean isConnected) {
+    public Boolean findAllByIsConnected() {
         try {
+            /**TODO in future please use is connected method */
             List<MqttTopics> topicsList = mqttTopicsRepository.findAll();
             for (MqttTopics mqttTopics : topicsList) {
-                mqttSubscriber.publishMessage(mqttTopics.getMtSerialNumber(), new Gson().toJson(mqttTopics));
+                mqttPublisher.publishMessage(mqttTopics.getMtSerialNumber(), new Gson().toJson(mqttTopics));
             }
         } catch (Exception e) {
             return false;

@@ -21,14 +21,21 @@ import java.util.UUID;
 @Component
 public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
 
-    private static final Logger logger = LoggerFactory.getLogger(MqttSubscriberImpl.class);
-    final private String colon = ":";
-    final private String clientId = UUID.randomUUID().toString();
     @Autowired
     MqttDataService mqttDataService;
+
     @Autowired
     MqttTopicsService mqttTopicsService;
+
+    @Autowired
+    MqttPublisherImpl mqttPublisher;
+
+    private static final Logger logger = LoggerFactory.getLogger(MqttSubscriberImpl.class);
+
+    final private String colon = ":";
+    final private String clientId = UUID.randomUUID().toString();
     private String brokerUrl = null;
+
     private MqttClient mqttClient = null;
     private MqttConnectOptions connectionOptions = null;
     private MemoryPersistence persistence = null;
@@ -98,7 +105,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
                         .ST("OK")
                         .PID(topicData.get().getMtSerialNumber())
                         .build();
-                publishMessage(topicData.get().getMtSubscriberTopic(), new Gson().toJson(mqttResponse));
+                mqttPublisher.publishMessage(topicData.get().getMtSubscriberTopic(), new Gson().toJson(mqttResponse));
             }
         }
         System.out.println("***********************************************************************");
@@ -113,26 +120,11 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
         try {
             this.mqttClient.subscribe(topic, this.qos);
         } catch (MqttException me) {
-            logger.error("ERROR", me);
             System.out.println("Not able to Read Topic  " + topic);
             // me.printStackTrace();
         }
     }
 
-    public void publishMessage(String topic, String message) {
-        try {
-            MqttMessage mqttmessage = new MqttMessage(message.getBytes());
-            mqttmessage.setQos(this.qos);
-            mqttmessage.setRetained(false);
-            this.mqttClient.publish(topic, mqttmessage);
-        } catch (com.gulteking.mqttbackendserver.exceptions.MqttException me) {
-            logger.error("ERROR", me);
-        } catch (MqttPersistenceException e) {
-            throw new RuntimeException(e);
-        } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public boolean unsubscribeMessage(String topic) {
         try {

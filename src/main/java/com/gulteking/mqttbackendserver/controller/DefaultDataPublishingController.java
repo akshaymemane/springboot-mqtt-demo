@@ -18,7 +18,7 @@ public class DefaultDataPublishingController {
 
     @GetMapping
     public ResponseEntity<Object> publishMessages() {
-        Boolean isConnected = mqttTopicsService.findAllByIsConnected(true);
+        Boolean isConnected = mqttTopicsService.findAllByIsConnected();
         if (isConnected != null)
             return ResponseEntity.status(HttpStatus.OK)
                     .body(JsonResponse.builder()
@@ -26,12 +26,11 @@ public class DefaultDataPublishingController {
                             .status(HttpStatus.OK)
                             .statusCode(HttpStatus.OK.value())
                             .build());
-        else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(JsonResponse.builder()
-                            .message("Topic data publishing error!!!")
-                            .status(HttpStatus.NOT_FOUND)
-                            .statusCode(HttpStatus.NOT_FOUND.value())
-                            .build());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(JsonResponse.builder()
+                        .message("Topic data publishing error!!!")
+                        .status(HttpStatus.NOT_FOUND)
+                        .statusCode(HttpStatus.NOT_FOUND.value())
+                        .build());
     }
 }

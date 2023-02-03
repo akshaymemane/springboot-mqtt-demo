@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface MqttTopicsService {
     List<MqttTopics> findAll();
 
-    Boolean findAllByIsConnected(Boolean isConnected);
+    Boolean findAllByIsConnected();
 
     Optional<MqttTopics> findById(Long id);
 
