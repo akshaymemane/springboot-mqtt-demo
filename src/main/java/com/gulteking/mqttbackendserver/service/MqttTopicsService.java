@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface MqttTopicsService {
     List<MqttTopics> findAll();
 
+    Boolean findAllByIsConnected();
+
     Optional<MqttTopics> findById(Long id);
 
     Optional<MqttTopics> findByTopicName(String topicName);

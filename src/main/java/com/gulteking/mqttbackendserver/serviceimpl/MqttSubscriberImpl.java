@@ -27,24 +27,25 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
     @Autowired
     MqttTopicsService mqttTopicsService;
 
-    private String brokerUrl = null;
+    @Autowired
+    MqttPublisherImpl mqttPublisher;
+
+    private static final Logger logger = LoggerFactory.getLogger(MqttSubscriberImpl.class);
+
     final private String colon = ":";
     final private String clientId = UUID.randomUUID().toString();
+    private String brokerUrl = null;
 
     private MqttClient mqttClient = null;
     private MqttConnectOptions connectionOptions = null;
     private MemoryPersistence persistence = null;
-    private static final Logger logger = LoggerFactory.getLogger(MqttSubscriberImpl.class);
 
     public MqttSubscriberImpl() {
-        logger.info("I am MqttSub impl");
         this.config();
     }
 
-
     @Override
     protected void config(String broker, Integer port, Boolean ssl, Boolean withUserNamePass) {
-        logger.info("Inside Parameter Config");
         String protocal = this.TCP;
         this.brokerUrl = protocal + this.broker + colon + port;
         this.persistence = new MemoryPersistence();
@@ -63,7 +64,6 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
 
     @Override
     protected void config() {
-        logger.info("Inside Config with parameter");
         this.brokerUrl = this.TCP + this.broker + colon + this.port;
         this.persistence = new MemoryPersistence();
         this.connectionOptions = new MqttConnectOptions();
@@ -85,7 +85,6 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
         this.config();
     }
 
-
     @Override
     public void messageArrived(String mqttTopic, MqttMessage mqttMessage) throws Exception {
         String time = new Timestamp(System.currentTimeMillis()).toString();
@@ -103,10 +102,10 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
             Optional<MqttTopics> topicData = mqttTopicsService.findByTopicName(mqttTopic);
             if (!topicData.isEmpty()) {
                 MqttResponse mqttResponse = MqttResponse.builder()
-                        .ST("OK").PID("1234")
+                        .ST("OK")
+                        .PID(topicData.get().getMtSerialNumber())
                         .build();
-                System.out.println("Rishabh Kukkar " + mqttResponse.toString());
-                publishMessage(topicData.get().getMtPublisherName(), new Gson().toJson(mqttResponse));
+                mqttPublisher.publishMessage(topicData.get().getMtSubscriberTopic(), new Gson().toJson(mqttResponse));
             }
         }
         System.out.println("***********************************************************************");
@@ -126,20 +125,6 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
         }
     }
 
-    public void publishMessage(String topic, String message) {
-        try {
-            MqttMessage mqttmessage = new MqttMessage(message.getBytes());
-            mqttmessage.setQos(this.qos);
-            mqttmessage.setRetained(false);
-            this.mqttClient.publish(topic, mqttmessage);
-        } catch (com.gulteking.mqttbackendserver.exceptions.MqttException me) {
-            logger.error("ERROR", me);
-        } catch (MqttPersistenceException e) {
-            throw new RuntimeException(e);
-        } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public boolean unsubscribeMessage(String topic) {
         try {

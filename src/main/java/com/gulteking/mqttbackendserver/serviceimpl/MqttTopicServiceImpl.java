@@ -1,5 +1,6 @@
 package com.gulteking.mqttbackendserver.serviceimpl;
 
+import com.google.gson.Gson;
 import com.gulteking.mqttbackendserver.entity.MqttTopics;
 import com.gulteking.mqttbackendserver.model.MqttTopicSubscribe;
 import com.gulteking.mqttbackendserver.repository.MqttDataRepository;
@@ -19,6 +20,8 @@ public class MqttTopicServiceImpl implements MqttTopicsService {
     @Autowired
     MqttSubscriberImpl mqttSubscriber;
 
+    @Autowired
+    MqttPublisherImpl mqttPublisher;
 
     @Autowired
     private MqttDataRepository mqttDataRepository;
@@ -29,20 +32,34 @@ public class MqttTopicServiceImpl implements MqttTopicsService {
     }
 
     @Override
+    public Boolean findAllByIsConnected() {
+        try {
+            /**TODO in future please use is connected method */
+            List<MqttTopics> topicsList = mqttTopicsRepository.findAll();
+            for (MqttTopics mqttTopics : topicsList) {
+                mqttPublisher.publishMessage(mqttTopics.getMtSerialNumber(), new Gson().toJson(mqttTopics));
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public Optional<MqttTopics> findById(Long id) {
         return mqttTopicsRepository.findById(id);
     }
 
     @Override
     public Optional<MqttTopics> findByTopicName(String topicName) {
-        return mqttTopicsRepository.findByMtName(topicName);
+        return mqttTopicsRepository.findByMtPublisherTopic(topicName);
     }
 
 
     @Override
     public MqttTopics save(MqttTopics mqttTopics) {
         MqttTopics createdTopic = mqttTopicsRepository.save(mqttTopics);
-        mqttSubscriber.subscribeMessage(createdTopic.getMtName());
+        mqttSubscriber.subscribeMessage(createdTopic.getMtPublisherTopic());
         return createdTopic;
     }
 
@@ -58,10 +75,10 @@ public class MqttTopicServiceImpl implements MqttTopicsService {
             return false;
         }
         if (messagePublishModel.getSubscribe()) {
-            Boolean isSubscribed = mqttSubscriber.unsubscribeMessage(topics.get().getMtName());
-            mqttSubscriber.subscribeMessage(topics.get().getMtName());
+            mqttSubscriber.unsubscribeMessage(topics.get().getMtPublisherTopic());
+            mqttSubscriber.subscribeMessage(topics.get().getMtPublisherTopic());
         } else {
-            mqttSubscriber.unsubscribeMessage(topics.get().getMtName());
+            mqttSubscriber.unsubscribeMessage(topics.get().getMtPublisherTopic());
         }
         return true;
     }
@@ -72,12 +89,12 @@ public class MqttTopicServiceImpl implements MqttTopicsService {
         try {
             if (subscribeUnsubscribe) {
                 for (MqttTopics mqttTopics : topicsList) {
-                    mqttSubscriber.unsubscribeMessage(mqttTopics.getMtName());
-                    mqttSubscriber.subscribeMessage(mqttTopics.getMtName());
+                    mqttSubscriber.unsubscribeMessage(mqttTopics.getMtPublisherTopic());
+                    mqttSubscriber.subscribeMessage(mqttTopics.getMtPublisherTopic());
                 }
             } else {
                 for (MqttTopics mqttTopics : topicsList) {
-                    mqttSubscriber.unsubscribeMessage(mqttTopics.getMtName());
+                    mqttSubscriber.unsubscribeMessage(mqttTopics.getMtPublisherTopic());
                 }
             }
             return true;
