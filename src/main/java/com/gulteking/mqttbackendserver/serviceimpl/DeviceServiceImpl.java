@@ -89,11 +89,11 @@ public class DeviceServiceImpl implements DeviceService {
                             .build());
         }
         for (Device device : deviceList) {
-            DeviceResponse deviceResponse = new DeviceResponse(
-                    device.getDeviceSerialId(),
-                    device.getDeviceSubscriberUrl(),
-                    device.getDevicePublisherUrl(),
-                    device.getDeviceDataEncryptionKey());
+            DeviceResponse deviceResponse = DeviceResponse.builder()
+                    .deviceSerialId(device.getDeviceSerialId())
+                    .publisherUrl(device.getDevicePublisherUrl())
+                    .subscriberTopic(device.getDeviceSubscriberUrl())
+                    .build();
             mqttPublisher.publishMessage(device.getDeviceSerialId(), new Gson().toJson(deviceResponse));
         }
         return ResponseEntity.status(HttpStatus.OK)
