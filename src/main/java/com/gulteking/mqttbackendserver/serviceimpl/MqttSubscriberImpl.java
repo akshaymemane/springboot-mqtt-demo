@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Optional;
@@ -85,6 +86,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
         this.config();
     }
 
+    @Transactional
     @Override
     public void messageArrived(String mqttTopic, MqttMessage mqttMessage) throws Exception {
         String time = new Timestamp(System.currentTimeMillis()).toString();
@@ -99,13 +101,13 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
                     .build();
             mqttDataService.save(mqttData);
 
-            Optional<Device> topicData = deviceService.findByTopicName(mqttTopic);
-            if (!topicData.isEmpty()) {
+            Optional<Device> deviceData = deviceService.findByTopicName(mqttTopic);
+            if (!deviceData.isEmpty()) {
                 MqttResponse mqttResponse = MqttResponse.builder()
                         .ST("OK")
-                        .PID(topicData.get().getDeviceSerialId())
+                        .PID(deviceData.get().getDeviceSerialId())
                         .build();
-                mqttPublisher.publishMessage(topicData.get().getDeviceSubscriberUrl(), new Gson().toJson(mqttResponse));
+                mqttPublisher.publishMessage(deviceData.get().getDeviceSubscriberUrl(), new Gson().toJson(mqttResponse));
             }
         }
         System.out.println("***********************************************************************");

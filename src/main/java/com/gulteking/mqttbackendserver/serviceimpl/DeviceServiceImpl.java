@@ -56,19 +56,19 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public ResponseEntity<Object> subscribeTopic(MqttTopicSubscribe messagePublishModel) {
-        Optional<Device> topics = deviceRepository.findById(messagePublishModel.getTopicId());
-        if (topics.isEmpty()) {
+        Optional<Device> device = deviceRepository.findById(messagePublishModel.getDeviceId());
+        if (device.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(JsonResponse.builder()
                     .message("Something went wrong while subscribing Topic!!!")
                     .status(HttpStatus.BAD_REQUEST)
                     .statusCode(HttpStatus.BAD_REQUEST.value())
                     .build());
         }
-        if (messagePublishModel.getSubscribe()) {
-            mqttSubscriber.unsubscribeMessage(topics.get().getDevicePublisherUrl());
-            mqttSubscriber.subscribeMessage(topics.get().getDevicePublisherUrl());
+        if (messagePublishModel.getIsSubscribed()) {
+            mqttSubscriber.unsubscribeMessage(device.get().getDevicePublisherUrl());
+            mqttSubscriber.subscribeMessage(device.get().getDevicePublisherUrl());
         } else {
-            mqttSubscriber.unsubscribeMessage(topics.get().getDevicePublisherUrl());
+            mqttSubscriber.unsubscribeMessage(device.get().getDevicePublisherUrl());
         }
         return ResponseEntity.status(HttpStatus.OK).body(JsonResponse.builder()
                 .message("Topic Subscribed successfully !!!")

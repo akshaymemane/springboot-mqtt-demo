@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public class MqttTopicSubscribe {
-    private Long topicId;
-    private Boolean subscribe;
+    private Long deviceId;
+    private Boolean isSubscribed;
 }

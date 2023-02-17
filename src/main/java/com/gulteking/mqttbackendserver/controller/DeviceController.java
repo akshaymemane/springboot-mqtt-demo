@@ -16,12 +16,12 @@ public class DeviceController {
     DeviceService deviceService;
 
     @PostMapping("/toTopic")
-    public ResponseEntity<Object> subscribeTopic(@RequestBody MqttTopicSubscribe messagePublishModel) {
-        return deviceService.subscribeTopic(messagePublishModel);
+    public ResponseEntity<Object> subscribeTopic(@RequestBody MqttTopicSubscribe mqttTopicSubscribe) {
+        return deviceService.subscribeTopic(mqttTopicSubscribe);
     }
 
     @PostMapping("/toAllTopic")
-    public ResponseEntity<Object> subscribeAllTopic(@RequestBody Boolean subscribeUnsubscribe) {
-        return deviceService.subscribeToAllTopic(subscribeUnsubscribe);
+    public ResponseEntity<Object> subscribeToAllTopic(@RequestBody Boolean subscribeUnsubscribeTopic) {
+        return deviceService.subscribeToAllTopic(subscribeUnsubscribeTopic);
     }
 }
