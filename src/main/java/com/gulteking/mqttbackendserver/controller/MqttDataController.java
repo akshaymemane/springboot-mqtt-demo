@@ -30,10 +30,10 @@ public class MqttDataController {
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                    .message("Topic data Not Found!!!")
-                    .status(HttpStatus.NOT_FOUND)
-                    .statusCode(HttpStatus.NOT_FOUND.value())
-                    .build());
+                            .message("Topic data Not Found!!!")
+                            .status(HttpStatus.NOT_FOUND)
+                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .build());
     }
 
 }

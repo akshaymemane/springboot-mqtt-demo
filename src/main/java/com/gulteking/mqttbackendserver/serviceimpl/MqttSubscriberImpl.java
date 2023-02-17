@@ -2,17 +2,18 @@ package com.gulteking.mqttbackendserver.serviceimpl;
 
 import com.google.gson.Gson;
 import com.gulteking.mqttbackendserver.config.MqttConfig;
+import com.gulteking.mqttbackendserver.entity.Device;
 import com.gulteking.mqttbackendserver.entity.MqttData;
-import com.gulteking.mqttbackendserver.entity.MqttTopics;
 import com.gulteking.mqttbackendserver.model.MqttResponse;
+import com.gulteking.mqttbackendserver.service.DeviceService;
 import com.gulteking.mqttbackendserver.service.MqttDataService;
-import com.gulteking.mqttbackendserver.service.MqttTopicsService;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
     MqttDataService mqttDataService;
 
     @Autowired
-    MqttTopicsService mqttTopicsService;
+    DeviceService deviceService;
 
     @Autowired
     MqttPublisherImpl mqttPublisher;
@@ -85,6 +86,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
         this.config();
     }
 
+    @Transactional
     @Override
     public void messageArrived(String mqttTopic, MqttMessage mqttMessage) throws Exception {
         String time = new Timestamp(System.currentTimeMillis()).toString();
@@ -99,13 +101,13 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
                     .build();
             mqttDataService.save(mqttData);
 
-            Optional<MqttTopics> topicData = mqttTopicsService.findByTopicName(mqttTopic);
-            if (!topicData.isEmpty()) {
+            Optional<Device> deviceData = deviceService.findByTopicName(mqttTopic);
+            if (!deviceData.isEmpty()) {
                 MqttResponse mqttResponse = MqttResponse.builder()
                         .ST("OK")
-                        .PID(topicData.get().getMtSerialNumber())
+                        .PID(deviceData.get().getDeviceSerialId())
                         .build();
-                mqttPublisher.publishMessage(topicData.get().getMtSubscriberTopic(), new Gson().toJson(mqttResponse));
+                mqttPublisher.publishMessage(deviceData.get().getDeviceSubscriberUrl(), new Gson().toJson(mqttResponse));
             }
         }
         System.out.println("***********************************************************************");
