@@ -2,11 +2,11 @@ package com.gulteking.mqttbackendserver.serviceimpl;
 
 import com.google.gson.Gson;
 import com.gulteking.mqttbackendserver.config.MqttConfig;
+import com.gulteking.mqttbackendserver.entity.Device;
 import com.gulteking.mqttbackendserver.entity.MqttData;
-import com.gulteking.mqttbackendserver.entity.MqttTopics;
 import com.gulteking.mqttbackendserver.model.MqttResponse;
+import com.gulteking.mqttbackendserver.service.DeviceService;
 import com.gulteking.mqttbackendserver.service.MqttDataService;
-import com.gulteking.mqttbackendserver.service.MqttTopicsService;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
     MqttDataService mqttDataService;
 
     @Autowired
-    MqttTopicsService mqttTopicsService;
+    DeviceService deviceService;
 
     @Autowired
     MqttPublisherImpl mqttPublisher;
@@ -99,13 +99,13 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
                     .build();
             mqttDataService.save(mqttData);
 
-            Optional<MqttTopics> topicData = mqttTopicsService.findByTopicName(mqttTopic);
+            Optional<Device> topicData = deviceService.findByTopicName(mqttTopic);
             if (!topicData.isEmpty()) {
                 MqttResponse mqttResponse = MqttResponse.builder()
                         .ST("OK")
-                        .PID(topicData.get().getMtSerialNumber())
+                        .PID(topicData.get().getDeviceSerialId())
                         .build();
-                mqttPublisher.publishMessage(topicData.get().getMtSubscriberTopic(), new Gson().toJson(mqttResponse));
+                mqttPublisher.publishMessage(topicData.get().getDeviceSubscriberUrl(), new Gson().toJson(mqttResponse));
             }
         }
         System.out.println("***********************************************************************");

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/mqtt_service?useSSL=false
+    url: jdbc:mysql://localhost:3306/e_nurse_prod?useSSL=false
     username: root
     password: CmileTally2db
     driverClassName: com.mysql.cj.jdbc.Driver
