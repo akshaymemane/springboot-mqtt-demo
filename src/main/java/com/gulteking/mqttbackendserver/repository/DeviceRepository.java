@@ -15,5 +15,8 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     List<Device> findAllByDeviceIsActiveFalse();
 
     Optional<Device> findByDevicePublisherUrl(String devicePublisherUrl);
+
+    Optional<Device> findByDeviceSerialId(String deviceSerialId);
+
 }
 

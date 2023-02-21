@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.gulteking.mqttbackendserver.config.MqttConfig;
 import com.gulteking.mqttbackendserver.entity.Device;
 import com.gulteking.mqttbackendserver.entity.MqttData;
+import com.gulteking.mqttbackendserver.model.DeviceResponse;
 import com.gulteking.mqttbackendserver.model.MqttResponse;
 import com.gulteking.mqttbackendserver.service.DeviceService;
 import com.gulteking.mqttbackendserver.service.MqttDataService;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -89,28 +91,42 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
     @Transactional
     @Override
     public void messageArrived(String mqttTopic, MqttMessage mqttMessage) throws Exception {
-        String time = new Timestamp(System.currentTimeMillis()).toString();
-        System.out.println("***********************************************************************");
-        String data = new String(mqttMessage.getPayload());
-        if (data != null || data != " ") {
-            System.out.println("Message Arrived at Time: " + time + "  Topic: " + mqttTopic + "  Message: "
-                    + new String(mqttMessage.getPayload()));
-            MqttData mqttData = MqttData.builder()
-                    .mqttDataTopic(mqttTopic)
-                    .mqttDataSyncedData(data)
-                    .build();
-            mqttDataService.save(mqttData);
-
-            Optional<Device> deviceData = deviceService.findByTopicName(mqttTopic);
-            if (!deviceData.isEmpty()) {
-                MqttResponse mqttResponse = MqttResponse.builder()
-                        .ST("OK")
-                        .PID(deviceData.get().getDeviceSerialId())
-                        .build();
-                mqttPublisher.publishMessage(deviceData.get().getDeviceSubscriberUrl(), new Gson().toJson(mqttResponse));
+            String time = new Timestamp(System.currentTimeMillis()).toString();
+            System.out.println("***********************************************************************");
+            String data = new String(mqttMessage.getPayload());
+            if (data != null || data != " ") {
+                System.out.println("Message Arrived at Time: " + time + "  Topic: " + mqttTopic + "  Message: "
+                        + data);
+                HashMap<String, String> stringObjectHashMap = new Gson().fromJson(data, HashMap.class);
+                if (stringObjectHashMap.get("STG").equals("9")) {
+                    String serialId = (String) stringObjectHashMap.get("SR");
+                    Optional<Device> deviceData = deviceService.findByDeviceSerialId(serialId);
+                    if (!deviceData.isEmpty()) {
+                        DeviceResponse deviceResponse = DeviceResponse.builder()
+                                .publisherUrl(deviceData.get().getDevicePublisherUrl())
+                                .subscriberTopic(deviceData.get().getDeviceSubscriberUrl())
+                                .build();
+                       // System.out.println("Rishabh Kukkar responsee " + deviceResponse.toString());
+                        mqttPublisher.publishMessage(deviceData.get().getDeviceSerialId(), new Gson().toJson(deviceResponse));
+                    }
+                } else {
+                    MqttData mqttData = MqttData.builder()
+                            .mqttDataTopic(mqttTopic)
+                            .mqttDataSyncedData(data)
+                            .build();
+                    mqttDataService.save(mqttData);
+                    Optional<Device> deviceData = deviceService.findByTopicName(mqttTopic);
+                    if (!deviceData.isEmpty()) {
+                        MqttResponse mqttResponse = MqttResponse.builder()
+                                .ST("OK")
+                                .PID(deviceData.get().getDeviceSerialId())
+                                .build();
+                        mqttPublisher.publishMessage(deviceData.get().getDeviceSubscriberUrl(), new Gson().toJson(mqttResponse));
+                    }
+                }
             }
-        }
-        System.out.println("***********************************************************************");
+            System.out.println("***********************************************************************");
+
     }
 
     @Override

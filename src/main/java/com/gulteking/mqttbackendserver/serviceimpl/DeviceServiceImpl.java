@@ -34,10 +34,13 @@ public class DeviceServiceImpl implements DeviceService {
                 for (Device mqttTopics : deviceList) {
                     mqttSubscriber.unsubscribeMessage(mqttTopics.getDevicePublisherUrl());
                     mqttSubscriber.subscribeMessage(mqttTopics.getDevicePublisherUrl());
+                    mqttSubscriber.unsubscribeMessage(mqttTopics.getDeviceSerialId() + "/p");
+                    mqttSubscriber.subscribeMessage(mqttTopics.getDeviceSerialId() + "/p");
                 }
             } else {
                 for (Device mqttTopics : deviceList) {
                     mqttSubscriber.unsubscribeMessage(mqttTopics.getDevicePublisherUrl());
+                    mqttSubscriber.unsubscribeMessage(mqttTopics.getDeviceSerialId() + "/p");
                 }
             }
             return ResponseEntity.status(HttpStatus.OK).body(JsonResponse.builder()
@@ -67,8 +70,11 @@ public class DeviceServiceImpl implements DeviceService {
         if (messagePublishModel.getIsSubscribed()) {
             mqttSubscriber.unsubscribeMessage(device.get().getDevicePublisherUrl());
             mqttSubscriber.subscribeMessage(device.get().getDevicePublisherUrl());
+            mqttSubscriber.unsubscribeMessage(device.get().getDeviceSerialId() + "/p");
+            mqttSubscriber.subscribeMessage(device.get().getDeviceSerialId() + "/p");
         } else {
             mqttSubscriber.unsubscribeMessage(device.get().getDevicePublisherUrl());
+            mqttSubscriber.unsubscribeMessage(device.get().getDeviceSerialId() + "/p");
         }
         return ResponseEntity.status(HttpStatus.OK).body(JsonResponse.builder()
                 .message("Topic Subscribed successfully !!!")
@@ -90,7 +96,7 @@ public class DeviceServiceImpl implements DeviceService {
         }
         for (Device device : deviceList) {
             DeviceResponse deviceResponse = DeviceResponse.builder()
-                    .deviceSerialId(device.getDeviceSerialId())
+//                    .deviceSerialId(device.getDeviceSerialId())
                     .publisherUrl(device.getDevicePublisherUrl())
                     .subscriberTopic(device.getDeviceSubscriberUrl())
                     .build();
@@ -107,5 +113,10 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Optional<Device> findByTopicName(String mqttTopic) {
         return deviceRepository.findByDevicePublisherUrl(mqttTopic);
+    }
+
+    @Override
+    public Optional<Device> findByDeviceSerialId(String mqttTopic) {
+        return deviceRepository.findByDeviceSerialId(mqttTopic);
     }
 }
