@@ -91,23 +91,29 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
     @Transactional
     @Override
     public void messageArrived(String mqttTopic, MqttMessage mqttMessage) throws Exception {
+        try {
             String time = new Timestamp(System.currentTimeMillis()).toString();
             System.out.println("***********************************************************************");
             String data = new String(mqttMessage.getPayload());
-            if (data != null || data != " ") {
+            if (data != null && !data.equals("")) {
                 System.out.println("Message Arrived at Time: " + time + "  Topic: " + mqttTopic + "  Message: "
                         + data);
                 HashMap<String, String> stringObjectHashMap = new Gson().fromJson(data, HashMap.class);
+                //TODO STG -> 9 is for initial data communications only 
                 if (stringObjectHashMap.get("STG").equals("9")) {
                     String serialId = (String) stringObjectHashMap.get("SR");
                     Optional<Device> deviceData = deviceService.findByDeviceSerialId(serialId);
                     if (!deviceData.isEmpty()) {
                         DeviceResponse deviceResponse = DeviceResponse.builder()
-                                .publisherUrl(deviceData.get().getDevicePublisherUrl())
-                                .subscriberTopic(deviceData.get().getDeviceSubscriberUrl())
+                                .PT(deviceData.get().getDevicePublisherUrl())
+                                .ST(deviceData.get().getDeviceSubscriberUrl())
                                 .build();
-                       // System.out.println("Rishabh Kukkar responsee " + deviceResponse.toString());
                         mqttPublisher.publishMessage(deviceData.get().getDeviceSerialId(), new Gson().toJson(deviceResponse));
+                        MqttData mqttData = MqttData.builder()
+                                .mqttDataTopic(mqttTopic)
+                                .mqttDataSyncedData(data)
+                                .build();
+                        mqttDataService.save(mqttData);
                     }
                 } else {
                     MqttData mqttData = MqttData.builder()
@@ -126,7 +132,9 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
                 }
             }
             System.out.println("***********************************************************************");
-
+        } catch (NullPointerException nullPointerException) {
+            nullPointerException.printStackTrace();
+        }
     }
 
     @Override

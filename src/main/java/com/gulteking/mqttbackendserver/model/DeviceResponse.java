@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeviceResponse {
-    private String deviceSerialId;
-    private String subscriberTopic;
-    private String publisherUrl;
-    private String encryptionKey;
+    private String SR;
+    private String ST;
+    private String PT;
+    private String EK;
 }
