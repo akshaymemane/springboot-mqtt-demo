@@ -14,4 +14,6 @@ public interface DeviceService {
     ResponseEntity<Object> publishDataToInactiveDevices();
 
     Optional<Device> findByTopicName(String mqttTopic);
+
+    Optional<Device> findByDeviceSerialId(String serialId);
 }

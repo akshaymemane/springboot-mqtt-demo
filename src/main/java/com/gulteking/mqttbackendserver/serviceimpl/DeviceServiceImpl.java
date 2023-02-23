@@ -7,6 +7,7 @@ import com.gulteking.mqttbackendserver.model.JsonResponse;
 import com.gulteking.mqttbackendserver.model.MqttTopicSubscribe;
 import com.gulteking.mqttbackendserver.repository.DeviceRepository;
 import com.gulteking.mqttbackendserver.service.DeviceService;
+import com.gulteking.mqttbackendserver.utils.constants.StringConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,16 +29,20 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public ResponseEntity<Object> subscribeToAllTopic(Boolean subscribeUnsubscribe) {
-        List<Device> deviceList = deviceRepository.findAllByDeviceIsActiveTrue();
+        //TODO Need to use findAllByDeviceIsActiveTrue in future
+        List<Device> deviceList = deviceRepository.findAll();
         try {
             if (subscribeUnsubscribe) {
                 for (Device mqttTopics : deviceList) {
                     mqttSubscriber.unsubscribeMessage(mqttTopics.getDevicePublisherUrl());
                     mqttSubscriber.subscribeMessage(mqttTopics.getDevicePublisherUrl());
+                    mqttSubscriber.unsubscribeMessage(mqttTopics.getDeviceSerialId() + StringConstants.TEXT_TOPIC_PUBLISHING_KEY);
+                    mqttSubscriber.subscribeMessage(mqttTopics.getDeviceSerialId() + StringConstants.TEXT_TOPIC_PUBLISHING_KEY);
                 }
             } else {
                 for (Device mqttTopics : deviceList) {
                     mqttSubscriber.unsubscribeMessage(mqttTopics.getDevicePublisherUrl());
+                    mqttSubscriber.unsubscribeMessage(mqttTopics.getDeviceSerialId() + StringConstants.TEXT_TOPIC_PUBLISHING_KEY);
                 }
             }
             return ResponseEntity.status(HttpStatus.OK).body(JsonResponse.builder()
@@ -67,8 +72,11 @@ public class DeviceServiceImpl implements DeviceService {
         if (messagePublishModel.getIsSubscribed()) {
             mqttSubscriber.unsubscribeMessage(device.get().getDevicePublisherUrl());
             mqttSubscriber.subscribeMessage(device.get().getDevicePublisherUrl());
+            mqttSubscriber.unsubscribeMessage(device.get().getDeviceSerialId() + StringConstants.TEXT_TOPIC_PUBLISHING_KEY);
+            mqttSubscriber.subscribeMessage(device.get().getDeviceSerialId() + StringConstants.TEXT_TOPIC_PUBLISHING_KEY);
         } else {
             mqttSubscriber.unsubscribeMessage(device.get().getDevicePublisherUrl());
+            mqttSubscriber.unsubscribeMessage(device.get().getDeviceSerialId() + StringConstants.TEXT_TOPIC_PUBLISHING_KEY);
         }
         return ResponseEntity.status(HttpStatus.OK).body(JsonResponse.builder()
                 .message("Topic Subscribed successfully !!!")
@@ -79,7 +87,8 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public ResponseEntity<Object> publishDataToInactiveDevices() {
-        List<Device> deviceList = deviceRepository.findAllByDeviceIsActiveFalse();
+        //TODO Need to remove findAll Method with in-active false 
+        List<Device> deviceList = deviceRepository.findAll();
         if (deviceList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
@@ -90,9 +99,8 @@ public class DeviceServiceImpl implements DeviceService {
         }
         for (Device device : deviceList) {
             DeviceResponse deviceResponse = DeviceResponse.builder()
-                    .deviceSerialId(device.getDeviceSerialId())
-                    .publisherUrl(device.getDevicePublisherUrl())
-                    .subscriberTopic(device.getDeviceSubscriberUrl())
+                    .PT(device.getDevicePublisherUrl())
+                    .ST(device.getDeviceSubscriberUrl())
                     .build();
             mqttPublisher.publishMessage(device.getDeviceSerialId(), new Gson().toJson(deviceResponse));
         }
@@ -107,5 +115,10 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Optional<Device> findByTopicName(String mqttTopic) {
         return deviceRepository.findByDevicePublisherUrl(mqttTopic);
+    }
+
+    @Override
+    public Optional<Device> findByDeviceSerialId(String mqttTopic) {
+        return deviceRepository.findByDeviceSerialId(mqttTopic);
     }
 }
