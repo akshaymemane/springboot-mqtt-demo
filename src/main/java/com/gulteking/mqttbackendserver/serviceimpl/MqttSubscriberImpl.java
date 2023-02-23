@@ -95,7 +95,7 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
             String time = new Timestamp(System.currentTimeMillis()).toString();
             System.out.println("***********************************************************************");
             String data = new String(mqttMessage.getPayload());
-            if (data != null && !data.equals("")) {
+            if (!data.isBlank()) {
                 System.out.println("Message Arrived at Time: " + time + "  Topic: " + mqttTopic + "  Message: "
                         + data);
                 HashMap<String, String> stringObjectHashMap = new Gson().fromJson(data, HashMap.class);
