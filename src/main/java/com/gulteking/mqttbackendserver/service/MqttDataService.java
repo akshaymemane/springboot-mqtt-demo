@@ -14,5 +14,7 @@ public interface MqttDataService {
 
     MqttData update(MqttData mqttData);
 
-    MqttData findLastRecord();
+    List<MqttData> findLastRecord();
+
+    List<MqttData> findLastRecordsByTopic(String topicName);
 }
