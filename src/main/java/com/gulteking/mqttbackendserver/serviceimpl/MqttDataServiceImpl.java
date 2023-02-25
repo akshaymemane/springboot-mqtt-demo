@@ -4,6 +4,9 @@ import com.gulteking.mqttbackendserver.entity.MqttData;
 import com.gulteking.mqttbackendserver.repository.MqttDataRepository;
 import com.gulteking.mqttbackendserver.service.MqttDataService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +20,7 @@ public class MqttDataServiceImpl implements MqttDataService {
 
     @Override
     public List<MqttData> findAll() {
-        return mqttDataRepository.findAll();
+        return (List<MqttData>) mqttDataRepository.findAll();
     }
 
     @Override
@@ -36,7 +39,13 @@ public class MqttDataServiceImpl implements MqttDataService {
     }
 
     @Override
-    public MqttData findLastRecord() {
-        return mqttDataRepository.findTopByOrderByMqttDataIdDesc();
+    public List<MqttData> findLastRecord() {
+        return mqttDataRepository.findAll(PageRequest.of(0, 50, Sort.by("mqttDataId").descending())).getContent();
+    }
+
+    @Override
+    public List<MqttData> findLastRecordsByTopic(String topicName) {
+        Pageable page = PageRequest.of(0, 20, Sort.by("mqttDataId").descending());
+        return mqttDataRepository.findAllByMqttDataTopic(topicName, page).getContent();
     }
 }
