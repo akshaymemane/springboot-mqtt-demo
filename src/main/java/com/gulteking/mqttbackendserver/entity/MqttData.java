@@ -25,7 +25,7 @@ public class MqttData {
     @Column(name = "mqtt_data_topic")
     private String mqttDataTopic;
 
-    @Column(name = "mqtt_data_synced_data")
+    @Column(name = "mqtt_data_synced_data", length = 2000)
     private String mqttDataSyncedData;
 
     @CreationTimestamp
