@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/e_nurse_prod?useSSL=false
+    url: jdbc:mysql://localhost:3306/e_nurse_dev?useSSL=false
     username: root
     password: Cmile#123
     driverClassName: com.mysql.cj.jdbc.Driver
