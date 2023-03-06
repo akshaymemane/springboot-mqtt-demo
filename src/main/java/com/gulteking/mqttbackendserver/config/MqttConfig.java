@@ -1,12 +1,12 @@
 package com.gulteking.mqttbackendserver.config;
 
 public abstract class MqttConfig {
-    protected final String broker = "107.155.65.25";
+    protected final String broker = "94.100.26.237";
     protected final int qos = 1;
     protected Boolean hasSSL = false; /*By default SSL is disabled */
     protected Integer port = 1883; /* Default port */
-    protected final String userName = "";
-    protected final String password = "";
+    protected final String userName = "enursedev";
+    protected final String password = "password";
     protected final String TCP = "tcp://";
     protected final String SSL = "ssl://";
 
