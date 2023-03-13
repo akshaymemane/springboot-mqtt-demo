@@ -98,37 +98,41 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
             if (!data.isBlank()) {
                 System.out.println("Message Arrived at Time: " + time + "  Topic: " + mqttTopic + "  Message: "
                         + data);
-                HashMap<String, String> stringObjectHashMap = new Gson().fromJson(data, HashMap.class);
-                //TODO STG -> 9 is for initial data communications only 
-                if (stringObjectHashMap.get("STG").equals("9")) {
-                    String serialId = (String) stringObjectHashMap.get("SR");
-                    Optional<Device> deviceData = deviceService.findByDeviceSerialId(serialId);
-                    if (!deviceData.isEmpty()) {
-                        DeviceResponse deviceResponse = DeviceResponse.builder()
-                                .PT(deviceData.get().getDevicePublisherUrl())
-                                .ST(deviceData.get().getDeviceSubscriberUrl())
-                                .build();
-                        mqttPublisher.publishMessage(deviceData.get().getDeviceSerialId(), new Gson().toJson(deviceResponse));
+                try {
+                    HashMap<String, String> stringObjectHashMap = new Gson().fromJson(data, HashMap.class);
+                    //TODO STG -> 9 is for initial data communications only
+                    if (stringObjectHashMap.get("STG").equals("9")) {
+                        String serialId = (String) stringObjectHashMap.get("SR");
+                        Optional<Device> deviceData = deviceService.findByDeviceSerialId(serialId);
+                        if (!deviceData.isEmpty()) {
+                            DeviceResponse deviceResponse = DeviceResponse.builder()
+                                    .PT(deviceData.get().getDevicePublisherUrl())
+                                    .ST(deviceData.get().getDeviceSubscriberUrl())
+                                    .build();
+                            mqttPublisher.publishMessage(deviceData.get().getDeviceSerialId(), new Gson().toJson(deviceResponse));
+                            MqttData mqttData = MqttData.builder()
+                                    .mqttDataTopic(mqttTopic)
+                                    .mqttDataSyncedData(data)
+                                    .build();
+                            mqttDataService.save(mqttData);
+                        }
+                    } else {
                         MqttData mqttData = MqttData.builder()
                                 .mqttDataTopic(mqttTopic)
                                 .mqttDataSyncedData(data)
                                 .build();
                         mqttDataService.save(mqttData);
+                        Optional<Device> deviceData = deviceService.findByTopicName(mqttTopic);
+                        if (!deviceData.isEmpty()) {
+                            MqttResponse mqttResponse = MqttResponse.builder()
+                                    .ST("OK")
+                                    .PID(deviceData.get().getDeviceSerialId())
+                                    .build();
+                            mqttPublisher.publishMessage(deviceData.get().getDeviceSubscriberUrl(), new Gson().toJson(mqttResponse));
+                        }
                     }
-                } else {
-                    MqttData mqttData = MqttData.builder()
-                            .mqttDataTopic(mqttTopic)
-                            .mqttDataSyncedData(data)
-                            .build();
-                    mqttDataService.save(mqttData);
-                    Optional<Device> deviceData = deviceService.findByTopicName(mqttTopic);
-                    if (!deviceData.isEmpty()) {
-                        MqttResponse mqttResponse = MqttResponse.builder()
-                                .ST("OK")
-                                .PID(deviceData.get().getDeviceSerialId())
-                                .build();
-                        mqttPublisher.publishMessage(deviceData.get().getDeviceSubscriberUrl(), new Gson().toJson(mqttResponse));
-                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
             System.out.println("***********************************************************************");
