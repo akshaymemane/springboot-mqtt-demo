@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import com.gulteking.mqttbackendserver.config.MqttConfig;
 import com.gulteking.mqttbackendserver.entity.Device;
 import com.gulteking.mqttbackendserver.entity.MqttData;
+import com.gulteking.mqttbackendserver.entity.MqttErrorData;
 import com.gulteking.mqttbackendserver.model.DeviceResponse;
 import com.gulteking.mqttbackendserver.model.MqttResponse;
 import com.gulteking.mqttbackendserver.service.DeviceService;
 import com.gulteking.mqttbackendserver.service.MqttDataService;
+import com.gulteking.mqttbackendserver.service.MqttErrorDataService;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -32,6 +34,9 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
 
     @Autowired
     MqttPublisherImpl mqttPublisher;
+
+    @Autowired
+    MqttErrorDataService mqttErrorDataService;
 
     private static final Logger logger = LoggerFactory.getLogger(MqttSubscriberImpl.class);
 
@@ -132,6 +137,13 @@ public class MqttSubscriberImpl extends MqttConfig implements MqttCallback {
                         }
                     }
                 } catch (Exception exception) {
+                    String errorData = new String(mqttMessage.getPayload());
+                    mqttErrorDataService.save(
+                            MqttErrorData.builder()
+                                    .mqttErrorDataSyncedData(errorData)
+                                    .mqttErrorDataTopic(mqttTopic)
+                                    .build()
+                    );
                     exception.printStackTrace();
                 }
             }
